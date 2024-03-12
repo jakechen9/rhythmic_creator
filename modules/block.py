@@ -1,6 +1,6 @@
 import torch.nn as nn
-from sublayers import MultiHeadAttention
-from feedforward import FeedFoward
+from modules.sublayers import MultiHeadAttention
+from modules.feedforward import FeedFoward
 
 
 class Block(nn.Module):
