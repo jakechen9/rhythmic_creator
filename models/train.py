@@ -27,7 +27,7 @@ class Train(Batch):
         for iteration in range(max_iters):
             # every once in a while evaluate the loss on train and val sets
             if iteration % evaluation_interval == 0 or iteration == max_iters - 1:
-                losses = self.estimate_loss(self.model, device)
+                losses = self.estimate_loss(device)
                 print(f"step {iteration}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
             # sample a batch of data
