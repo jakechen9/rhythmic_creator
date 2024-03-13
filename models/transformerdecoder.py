@@ -19,6 +19,7 @@ class DecoderModel(nn.Module):
         super().__init__()
         # self.device = device
         self.block_size = block_size
+        self.dl1 = nn.Dropout(dropout)
         self.tok_embd_tbl = nn.Embedding(vocab_size, n_embd)
         self.pos_embd_tbl = nn.Embedding(block_size, n_embd)
         self.blocks = nn.Sequential(*[Block(n_embd, num_heads, block_size, dropout) for _ in range(n_layer)])
@@ -28,8 +29,8 @@ class DecoderModel(nn.Module):
 
     def forward(self, device, idx, targets=None):
         b, t = idx.shape
-        tok_emb = self.tok_embd_tbl(idx)  # (b, t, c)
-        pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
+        tok_emb = self.dl1(self.tok_embd_tbl(idx))  # (b, t, c)
+        pos_emb = self.dl1(self.pos_embd_tbl(torch.arange(t, device=device)))
         x = tok_emb + pos_emb
         x = self.blocks(x)
         x = self.ln_n(x)
@@ -39,8 +40,8 @@ class DecoderModel(nn.Module):
             loss = None
         else:
             b, t, c = logits.shape
-            logits = logits.view(b*t, c)
-            targets = targets.view(b*t)
+            logits = logits.view(b * t, c)
+            targets = targets.view(b * t)
             loss = F.cross_entropy(logits, targets)
         return logits, loss
 
