@@ -44,10 +44,10 @@ class DecoderModel(nn.Module):
             loss = F.cross_entropy(logits, targets)
         return logits, loss
 
-    def generate(self, idx, max_new_tokens):
+    def generate(self, device, idx, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_crop = idx[:, -self.block_size:]
-            logits, loss = self(idx_crop)
+            logits, loss = self(device, idx_crop)
             logits = logits[:, -1, :]
             probs = F.softmax(logits, dim=-1)
             idx_next = torch.multinomial(probs, num_samples=1)
