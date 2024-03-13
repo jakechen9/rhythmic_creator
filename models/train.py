@@ -2,6 +2,7 @@ import torch
 from preprocess.batch import Batch
 from preprocess.preprocessing import MIDIProcessor
 from models.transformerdecoder import DecoderModel
+
 torch.manual_seed(1337)
 
 path = '/content/rhythmic_creator/training_1.txt'
@@ -32,8 +33,15 @@ evaluation_iters = 200
 get_batch = Batch(data, block_size, batch_size)
 
 
+# model = DecoderModel(block_size, vocab_size, n_embd, num_heads, n_layer, dropout)
+# m = model.to(device)
+#
+# print(sum(p.numel() for p in m.parameters()) / 1e6, 'M parameters')
+#
+# optimizer = torch.optim.AdamW(m.parameters(), lr=learning_rate)
+
 @torch.no_grad()
-def estimate_loss():
+def estimate_loss(model):
     out = {}
     model.eval()
     for split in ['train', 'val']:
@@ -47,26 +55,18 @@ def estimate_loss():
     return out
 
 
-model = DecoderModel(block_size, vocab_size, n_embd, num_heads, n_layer, dropout)
-m = model.to(device)
+def train(model, optimizer):
+    for iteration in range(max_iters):
+        # every once in a while evaluate the loss on train and val sets
+        if iteration % evaluation_interval == 0 or iteration == max_iters - 1:
+            losses = estimate_loss(model)
+            print(f"step {iteration}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
-print(sum(p.numel() for p in m.parameters()) / 1e6, 'M parameters')
+        # sample a batch of data
+        xb, yb = get_batch.create_batch('train', device)
 
-optimizer = torch.optim.AdamW(m.parameters(), lr=learning_rate)
-
-
-for iteration in range(max_iters):
-    # every once in a while evaluate the loss on train and val sets
-    if iteration % evaluation_interval == 0 or iteration == max_iters - 1:
-        losses = estimate_loss()
-        print(f"step {iteration}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
-
-    # sample a batch of data
-    xb, yb = get_batch.create_batch('train', device)
-
-    # evaluate the loss
-    logits, loss = model(device, xb, yb)
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
-
+        # evaluate the loss
+        logits, loss = model(device, xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
