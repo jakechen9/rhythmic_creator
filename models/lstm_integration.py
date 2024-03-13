@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from modules.block import AttentionBlock
+from modules.block import AttentionBlock, LSTMffBlock
 
 
 def _init_weights(module):
@@ -13,15 +13,16 @@ def _init_weights(module):
         torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
 
-class DecoderModel(nn.Module):
+class LSTMDecoderModel(nn.Module):
     def __init__(self, block_size, vocab_size,
-                 n_embd, num_heads, n_layer, dropout):
+                 n_embd, num_heads, n_layer, dropout, n_hidden, lstm_layers):
         super().__init__()
         # self.device = device
         self.block_size = block_size
         self.tok_embd_tbl = nn.Embedding(vocab_size, n_embd)
         self.pos_embd_tbl = nn.Embedding(block_size, n_embd)
         self.blocks = nn.Sequential(*[AttentionBlock(n_embd, num_heads, block_size, dropout) for _ in range(n_layer)])
+        self.lstmblocks = LSTMffBlock(n_embd, n_hidden, lstm_layers, dropout)
         self.ln_n = nn.LayerNorm(n_embd)
         self.model_head = nn.Linear(n_embd, vocab_size)
         self.apply(_init_weights)
@@ -32,6 +33,7 @@ class DecoderModel(nn.Module):
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
         x = tok_emb + pos_emb
         x = self.blocks(x)
+        x = self.lstmblocks(x)
         x = self.ln_n(x)
         logits = self.model_head(x)
 

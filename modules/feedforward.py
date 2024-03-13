@@ -1,8 +1,7 @@
 import torch.nn as nn
 
 
-class FeedFoward(nn.Module):
-    """ a simple linear layer followed by a non-linearity """
+class MlPFeedForward(nn.Module):
     def __init__(self, n_embd, dropout):
         super().__init__()
         self.net = nn.Sequential(
@@ -14,3 +13,18 @@ class FeedFoward(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+
+
+class LSTMFeedForward(nn.Module):
+    def __init__(self, n_embd, n_hidden, lstm_layers, dropout):
+        super().__init__()
+        self.lstm = nn.LSTM(n_embd, n_hidden, num_layers=lstm_layers, dropout=dropout,
+                            batch_first=True)
+        self.dl = nn.Dropout(dropout)
+        self.fc = nn.Linear(n_hidden, n_embd)
+
+    def forward(self, x):
+        x, _ = self.lstm(x)
+        x = self.dl(x)
+        x = self.fc(x)
+        return x
