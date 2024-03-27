@@ -12,10 +12,12 @@ class AttentionBlock(nn.Module):
         self.ffwd = MlPFeedForward(n_embd, dropout)
         self.lyr_norm1 = nn.LayerNorm(n_embd)
         self.lyr_norm2 = nn.LayerNorm(n_embd)
+        self.lyr_norm4 = nn.LayerNorm(n_embd)
 
     def forward(self, x):
         x = x + self.sa(self.lyr_norm1(x))
         x = x + self.ffwd(self.lyr_norm2(x))  # skip connection, residual connection.
+        x = x + self.sa(self.lyr_norm4(x))
         return x
 
 
