@@ -19,6 +19,7 @@ class LSTMDecoderModel(nn.Module):
         super().__init__()
         # self.device = device
         self.block_size = block_size
+        self.n_hidden = n_hidden
         self.lstm_layers = lstm_layers
         self.tok_embd_tbl = nn.Embedding(vocab_size, n_embd)
         self.pos_embd_tbl = nn.Embedding(block_size, n_embd)
