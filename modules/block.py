@@ -27,8 +27,8 @@ class LSTMffBlock(nn.Module):
         self.lstmffwd = LSTMFeedForward(n_embd, n_hidden, lstm_layers, dropout)
         self.lyr_norm3 = nn.LayerNorm(n_embd)
 
-    def forward(self, x):
-        x = x + self.lstmffwd(self.lyr_norm3(x))
+    def forward(self, x, hidden):
+        x = x + self.lstmffwd(self.lyr_norm3(x), hidden)
         return x
 
 

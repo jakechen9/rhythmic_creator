@@ -23,8 +23,8 @@ class LSTMFeedForward(nn.Module):
         self.dl = nn.Dropout(dropout)
         self.fc = nn.Linear(n_hidden, n_embd)
 
-    def forward(self, x):
-        x, _ = self.lstm(x)
+    def forward(self, x, hidden):
+        x, _ = self.lstm(x, hidden)
         x = self.dl(x)
         x = self.fc(x)
         return x
