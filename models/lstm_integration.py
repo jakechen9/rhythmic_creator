@@ -27,13 +27,13 @@ class LSTMDecoderModel(nn.Module):
         self.model_head = nn.Linear(n_embd, vocab_size)
         self.apply(_init_weights)
 
-    def forward(self, device, idx, targets=None):
+    def forward(self, device, idx, hidden, targets=None):
         b, t = idx.shape
         tok_emb = self.tok_embd_tbl(idx)  # (b, t, c)
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
         x = tok_emb + pos_emb
         x = self.blocks(x)
-        x = self.lstmblocks(x)
+        x, _ = self.lstmblocks(x, hidden)
         x = self.ln_n(x)
         logits = self.model_head(x)
 
@@ -46,10 +46,21 @@ class LSTMDecoderModel(nn.Module):
             loss = F.cross_entropy(logits, targets)
         return logits, loss
 
-    def generate(self, device, idx, max_new_tokens):
+    def init_hidden(self, batch_size, device):
+        hidden = torch.zeros(self.lstm_layers, batch_size, self.n_hidden).to(device)
+        cell = torch.zeros(self.lstm_layers, batch_size, self.n_hidden).to(device)
+        return hidden, cell
+
+    def detach_hidden(self, hidden):
+        hidden, cell = hidden
+        hidden = hidden.detach()
+        cell = cell.detach()
+        return hidden, cell
+
+    def generate(self, device, idx, hidden, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_crop = idx[:, -self.block_size:]
-            logits, loss = self(device, idx_crop)
+            logits, loss = self(device, idx_crop, hidden)
             logits = logits[:, -1, :]
             probs = F.softmax(logits, dim=-1)
             idx_next = torch.multinomial(probs, num_samples=1)
