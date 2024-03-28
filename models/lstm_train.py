@@ -19,7 +19,7 @@ class LSTMTrain(Batch):
             for k in range(self.evaluation_iters):
                 hidden = self.model.detach_hidden(hidden)
                 X, Y = self.create_batch(split, device)
-                logits, loss = self.model(device, X, hidden, Y)
+                logits, loss, hidden = self.model(device, X, hidden, Y)
                 losses[k] = loss.item()
             out[split] = losses.mean()
         self.model.train()
@@ -36,8 +36,8 @@ class LSTMTrain(Batch):
             xb, yb = self.create_batch('train', device)
 
             # evaluate the loss
-            logits, loss = self.model(device, xb, hidden, yb)
+            logits, loss, hidden = self.model(device, xb, hidden, yb)
             self.optimizer.zero_grad(set_to_none=True)
-            hidden = self.model.detach_hidden(hidden)
+            # hidden = self.model.detach_hidden(hidden)
             loss.backward()
             self.optimizer.step()

@@ -35,7 +35,7 @@ class LSTMDecoderModel(nn.Module):
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
         x = tok_emb + pos_emb
         x = self.blocks(x)
-        x, _ = self.lstmblocks(x, hidden)
+        x, h = self.lstmblocks(x, hidden)
         x = self.ln_n(x)
         logits = self.model_head(x)
 
@@ -46,7 +46,7 @@ class LSTMDecoderModel(nn.Module):
             logits = logits.view(b * t, c)
             targets = targets.view(b * t)
             loss = F.cross_entropy(logits, targets)
-        return logits, loss
+        return logits, loss, h
 
     def init_hidden(self, batch_size, device):
         hidden = torch.zeros(self.lstm_layers, batch_size, self.n_hidden).to(device)
@@ -62,7 +62,7 @@ class LSTMDecoderModel(nn.Module):
     def generate(self, device, idx, hidden, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_crop = idx[:, -self.block_size:]
-            logits, loss = self(device, idx_crop, hidden)
+            logits, loss, h = self(device, idx_crop, hidden)
             logits = logits[:, -1, :]
             probs = F.softmax(logits, dim=-1)
             idx_next = torch.multinomial(probs, num_samples=1)
