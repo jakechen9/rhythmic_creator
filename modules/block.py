@@ -21,7 +21,7 @@ class AttentionBlock(nn.Module):
         x = x + self.sa(self.lyr_norm1(x))
         x = x + self.ffwd(self.lyr_norm2(x))  # skip connection, residual connection.
         x = x + self.sa2(self.lyr_norm4(x))
-        x = x + self.ffwd2(self.lyr_norm5(x))
+        x = x + self.ffwd_2(self.lyr_norm5(x))
 
         return x
 
