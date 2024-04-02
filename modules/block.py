@@ -40,8 +40,10 @@ class BlockTwo(nn.Module):
     def forward(self, inputs):
         x, hidden = inputs
         x = x + self.sa(self.lyr_norm1(x))
-        x, h = self.lstm_lyr(self.lyr_norm4(x), hidden)
-        x = x + self.ffwd(self.lyr_norm2(x))  # skip connection, residual connection.
+        x_lstm, h = self.lstm_lyr(self.lyr_norm4(x), hidden)
+        x = x + x_lstm
+
+        # x = x + self.ffwd(self.lyr_norm2(x))  # skip connection, residual connection.
         # x = x + self.sa(self.lyr_norm4(x))
         return x, h
 
