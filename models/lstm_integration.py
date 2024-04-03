@@ -37,10 +37,11 @@ class LSTMDecoderModel(nn.Module):
         b, t = idx.shape
         tok_emb = self.tok_embd_tbl(idx)  # (b, t, c)
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
-        x = tok_emb + pos_emb
+        x = tok_emb #+ pos_emb
         # inputs = torch.cat((x, hidden))
         # x, h = self.blocks((x, hidden))
         x, h = self.lstmblocks(x, hidden)
+
         x = self.blocks(x)
         x = self.ln_n(x)
         logits = self.model_head(x)
