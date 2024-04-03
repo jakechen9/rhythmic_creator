@@ -39,7 +39,7 @@ class LSTMFeedForward(nn.Module):
         self.lstm_layers = lstm_layers
         self.n_embd = n_embd
         self.n_hidden = n_hidden
-        self.init_weights()
+        self._init_weights()
 
     def forward(self, x, hidden):
         x, h = self.lstm(x, hidden)
