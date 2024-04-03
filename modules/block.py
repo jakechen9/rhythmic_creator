@@ -9,19 +9,19 @@ class AttentionBlock(nn.Module):
         super().__init__()
         head_size = n_embd // num_heads
         self.sa = MultiHeadAttention(num_heads, head_size, n_embd, block_size, dropout)
-        self.sa2 = MultiHeadAttention(num_heads // 2, head_size * 2, n_embd, block_size, dropout)
         self.ffwd = MlPFeedForward(n_embd, dropout)
-        self.ffwd_2 = MlPFeedForward2(n_embd, dropout)
         self.lyr_norm1 = nn.LayerNorm(n_embd)
         self.lyr_norm2 = nn.LayerNorm(n_embd)
-        self.lyr_norm4 = nn.LayerNorm(n_embd)
-        self.lyr_norm5 = nn.LayerNorm(n_embd)
+        # self.sa2 = MultiHeadAttention(num_heads // 2, head_size * 2, n_embd, block_size, dropout)
+        # self.ffwd_2 = MlPFeedForward2(n_embd, dropout)
+        # self.lyr_norm4 = nn.LayerNorm(n_embd)
+        # self.lyr_norm5 = nn.LayerNorm(n_embd)
 
     def forward(self, x):
         x = x + self.sa(self.lyr_norm1(x))
         x = x + self.ffwd(self.lyr_norm2(x))  # skip connection, residual connection.
-        x = x + self.sa2(self.lyr_norm4(x))
-        x = x + self.ffwd_2(self.lyr_norm5(x))
+        # x = x + self.sa2(self.lyr_norm4(x))
+        # x = x + self.ffwd_2(self.lyr_norm5(x))
 
         return x
 
