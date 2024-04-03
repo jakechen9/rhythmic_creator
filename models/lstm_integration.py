@@ -29,6 +29,7 @@ class LSTMDecoderModel(nn.Module):
         # self.blocks = nn.Sequential(*[BlockTwo(n_embd, num_heads, block_size, dropout, n_hidden, lstm_layers) for _ in
         #                               range(n_layer)])
         self.ln_n = nn.LayerNorm(n_embd)
+        self.ln_n_1 = nn.LayerNorm(n_embd)
 
         self.model_head = nn.Linear(n_embd, vocab_size)
         self.apply(_init_weights)
@@ -37,13 +38,13 @@ class LSTMDecoderModel(nn.Module):
         b, t = idx.shape
         tok_emb = self.tok_embd_tbl(idx)  # (b, t, c)
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
-        x = tok_emb #+ pos_emb
+        x = tok_emb + pos_emb
         # inputs = torch.cat((x, hidden))
         # x, h = self.blocks((x, hidden))
-        x, h = self.lstmblocks(x, hidden)
-
         x = self.blocks(x)
         x = self.ln_n(x)
+        x, h = self.lstmblocks(x, hidden)
+        x = self.ln_n_1(x)
         logits = self.model_head(x)
 
         if targets is None:
