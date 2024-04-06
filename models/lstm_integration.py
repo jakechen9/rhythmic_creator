@@ -23,12 +23,19 @@ class LSTMDecoderModel(nn.Module):
         self.lstm_layers = lstm_layers
         self.tok_embd_tbl = nn.Embedding(vocab_size, n_embd)
         self.pos_embd_tbl = nn.Embedding(block_size, n_embd)
+
+        # baseline transformer
         # self.blocks = nn.Sequential(*[AttentionBlock(n_embd, num_heads, block_size, dropout)
         #                               for _ in range(n_layer)])
+
+        # lstm at end or beginning
         # self.blocks = nn.Sequential(*[AttentionBlock(n_embd, num_heads, block_size, dropout) for _ in range(n_layer)])
         # self.lstmblocks = LSTMffBlock(n_embd, n_hidden, lstm_layers, dropout)
+
+        # lstm in sequential block
         self.blocks = nn.Sequential(*[BlockTwo(n_embd, num_heads, block_size, dropout, n_hidden, lstm_layers) for _ in
                                       range(n_layer)])
+
         self.dropout = nn.Dropout(dropout)
         self.ln_n = nn.LayerNorm(n_embd)
         self.ln_n_1 = nn.LayerNorm(n_embd)
@@ -41,12 +48,22 @@ class LSTMDecoderModel(nn.Module):
         tok_emb = self.tok_embd_tbl(idx)  # (b, t, c)
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
         x = self.dropout(tok_emb + pos_emb)
-        # inputs = torch.cat((x, hidden))
+
+        # lstm in sequential block
         x, h = self.blocks((x, hidden))
+        x = self.dropout(x)
+
+        # baseline transformer
         # x = self.blocks(x)
+
+
         x = self.ln_n(x)
+        x = self.dropout(x)
+        # lstm at end
         # x, h = self.lstmblocks(x, hidden)
         # x = self.ln_n_1(x)
+
+        # logits
         logits = self.model_head(x)
 
         if targets is None:
