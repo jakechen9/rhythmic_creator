@@ -36,6 +36,7 @@ class BlockTwo(nn.Module):
         self.lyr_norm1 = nn.LayerNorm(n_embd)
         self.lyr_norm2 = nn.LayerNorm(n_embd)
         self.lyr_norm4 = nn.LayerNorm(n_embd)
+        self.lyr_norm3 = nn.LayerNorm(n_embd)
 
     def forward(self, inputs):
         x, hidden = inputs
@@ -43,7 +44,7 @@ class BlockTwo(nn.Module):
         x_lstm, h = self.lstm_lyr(self.lyr_norm4(x), hidden)
         # x = x + x_lstm
         x = x + self.ffwd(self.lyr_norm2(x))
-        x = x + x_lstm
+        x = x + self.lyr_norm3(x_lstm)
         # x = x + self.ffwd(self.lyr_norm2(x))  # skip connection, residual connection.
         # x = x + self.sa(self.lyr_norm4(x))
         return x, h
