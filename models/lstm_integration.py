@@ -42,11 +42,11 @@ class LSTMDecoderModel(nn.Module):
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
         x = self.dropout(tok_emb + pos_emb)
         # inputs = torch.cat((x, hidden))
-        # x, h = self.blocks((x, hidden))
-        x = self.blocks(x)
+        x, h = self.blocks((x, hidden))
+        # x = self.blocks(x)
         x = self.ln_n(x)
-        x, h = self.lstmblocks(x, hidden)
-        x = self.ln_n_1(x)
+        # x, h = self.lstmblocks(x, hidden)
+        # x = self.ln_n_1(x)
         logits = self.model_head(x)
 
         if targets is None:
