@@ -47,18 +47,18 @@ class LSTMDecoderModel(nn.Module):
         b, t = idx.shape
         tok_emb = self.tok_embd_tbl(idx)  # (b, t, c)
         pos_emb = self.pos_embd_tbl(torch.arange(t, device=device))
-        x = self.dropout(tok_emb + pos_emb)
+        x = tok_emb + pos_emb
 
         # lstm in sequential block
         x, h = self.blocks((x, hidden))
-        x = self.dropout(x)
+
 
         # baseline transformer
         # x = self.blocks(x)
 
 
         x = self.ln_n(x)
-        x = self.dropout(x)
+
         # lstm at end
         # x, h = self.lstmblocks(x, hidden)
         # x = self.ln_n_1(x)
