@@ -17,7 +17,6 @@ class DecoderModel(nn.Module):
     def __init__(self, block_size, vocab_size,
                  n_embd, num_heads, n_layer, dropout):
         super().__init__()
-        # self.device = device
         self.block_size = block_size
         self.tok_embd_tbl = nn.Embedding(vocab_size, n_embd)
         self.pos_embd_tbl = nn.Embedding(block_size, n_embd)

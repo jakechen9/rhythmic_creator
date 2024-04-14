@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from modules.block import BlockTwo, AttentionBlock, LSTMffBlock
+from modules.block import BlockTwo
 
 
 def _init_weights(module):
@@ -24,22 +24,12 @@ class LSTMDecoderModel(nn.Module):
         self.tok_embd_tbl = nn.Embedding(vocab_size, n_embd)
         self.pos_embd_tbl = nn.Embedding(block_size, n_embd)
 
-        # baseline transformer
-        # self.blocks = nn.Sequential(*[AttentionBlock(n_embd, num_heads, block_size, dropout)
-        #                               for _ in range(n_layer)])
-
-        # lstm at end or beginning
-        # self.blocks = nn.Sequential(*[AttentionBlock(n_embd, num_heads, block_size, dropout) for _ in range(n_layer)])
-        # self.lstmblocks = LSTMffBlock(n_embd, n_hidden, lstm_layers, dropout)
-
         # lstm in sequential block
-        self.blocks = nn.Sequential(*[BlockTwo(n_embd, num_heads, block_size, dropout, n_hidden, lstm_layers) for _ in
-                                      range(n_layer)])
+        self.blocks = nn.Sequential(*[BlockTwo(n_embd, num_heads, block_size, dropout, n_hidden, lstm_layers)
+                                      for _ in range(n_layer)])
 
         self.dropout = nn.Dropout(dropout)
         self.ln_n = nn.LayerNorm(n_embd)
-        self.ln_n_1 = nn.LayerNorm(n_embd)
-
         self.model_head = nn.Linear(n_embd, vocab_size)
         self.apply(_init_weights)
 
@@ -51,19 +41,7 @@ class LSTMDecoderModel(nn.Module):
 
         # lstm in sequential block
         x, h = self.blocks((x, hidden))
-
-
-        # baseline transformer
-        # x = self.blocks(x)
-
-
         x = self.ln_n(x)
-
-        # lstm at end
-        # x, h = self.lstmblocks(x, hidden)
-        # x = self.ln_n_1(x)
-
-        # logits
         logits = self.model_head(x)
 
         if targets is None:
