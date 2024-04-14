@@ -1,26 +1,14 @@
 import torch.nn as nn
 import torch
 import math
+
+
 class MlPFeedForward(nn.Module):
     def __init__(self, n_embd, dropout):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(n_embd, 4 * n_embd),
             nn.ReLU(),
-            nn.Linear(4 * n_embd, n_embd),
-            nn.Dropout(dropout),
-        )
-
-    def forward(self, x):
-        return self.net(x)
-
-
-class MlPFeedForward2(nn.Module):
-    def __init__(self, n_embd, dropout):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd),
-            nn.GELU(),
             nn.Linear(4 * n_embd, n_embd),
             nn.Dropout(dropout),
         )
@@ -54,6 +42,3 @@ class LSTMFeedForward(nn.Module):
                                                                                                  non_embd_layer_range)
             self.lstm.all_weights[i][1] = torch.FloatTensor(self.n_hidden, self.n_hidden).uniform_(
                 -non_embd_layer_range, non_embd_layer_range)
-
-
-

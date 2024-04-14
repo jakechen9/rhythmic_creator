@@ -1,6 +1,6 @@
 import torch.nn as nn
 from modules.sublayers import MultiHeadAttention
-from modules.feedforward import MlPFeedForward, LSTMFeedForward, MlPFeedForward2
+from modules.feedforward import MlPFeedForward, LSTMFeedForward
 
 
 class AttentionBlock(nn.Module):
