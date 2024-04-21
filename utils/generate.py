@@ -3,20 +3,17 @@ import pretty_midi
 
 def find_idx(given):
     int_idx = None
-    float_val = []
+    min_float_idx = None
+    max_float_idx = None
     for i, entry in enumerate(given[0]):
-        try:
-            int(entry)
+        if isinstance(entry, int):
             int_idx = i
-        except ValueError:
-            float_val.append(float(entry))
-    if float_val:
-        min_idx = float_val.index(min(float_val))
-        max_idx = float_val.index(max(float_val))
-    else:
-        min_idx = None
-        max_idx = None
-    return int_idx, min_idx, max_idx
+        elif isinstance(entry, float):
+            if min_float_idx is None or entry < given[0][min_float_idx]:
+                min_float_idx = i
+            if max_float_idx is None or entry > given[0][max_float_idx]:
+                max_float_idx = i
+    return int_idx, min_float_idx, max_float_idx
 
 
 def gen(given, output_path):
