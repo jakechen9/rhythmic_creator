@@ -6,13 +6,17 @@ def find_idx(given):
     min_float_idx = None
     max_float_idx = None
     for i, entry in enumerate(given[0]):
-        if isinstance(entry, int):
-            int_idx = i
-        elif isinstance(entry, float):
-            if min_float_idx is None or entry < given[0][min_float_idx]:
-                min_float_idx = i
-            if max_float_idx is None or entry > given[0][max_float_idx]:
-                max_float_idx = i
+        try:
+            entry_val = float(entry)
+            if '.' in entry:
+                if min_float_idx is None or entry_val < float(given[0][min_float_idx]):
+                    min_float_idx = i
+                if max_float_idx is None or entry_val > float(given[0][max_float_idx]):
+                    max_float_idx = i
+            else:
+                int_idx = i
+        except ValueError:
+            continue
     return int_idx, min_float_idx, max_float_idx
 
 
