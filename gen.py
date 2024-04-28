@@ -54,11 +54,11 @@ while True:
 def get_max_tok_and_context(conditional_type):
     max_tok = 0
     given = None
-    if conditional == 'yes':
+    if conditional_type == 'yes':
         context = extract.Extract('training_1.txt', context_path)
         given = context.extract_drum_pattern(device)
         max_tok = int(number_notes) * 3
-    elif conditional == 'no':
+    elif conditional_type == 'no':
         max_tok = int(number_notes) * 3 - 1
         given = torch.zeros((1, 1), dtype=torch.long, device=device)
     return max_tok, given
