@@ -50,6 +50,13 @@ while True:
     else:
         print("Error: Invalid input. Please enter positive integers.")
 
+while True:
+    gen_save_path = input("Enter path to save the file: ")
+    if gen_save_path.endswith(('.mid', '.midi')):
+        break
+    else:
+        print("Error: Invalid input. The path must end with either '.mid' or '.midi'.")
+
 
 def get_max_tok_and_context(conditional_type):
     max_tok = 0
@@ -65,13 +72,6 @@ def get_max_tok_and_context(conditional_type):
 
 
 max_token, given_context = get_max_tok_and_context(conditional)
-
-while True:
-    gen_save_path = input("Enter path to save the file: ")
-    if gen_save_path.endswith(('.mid', '.midi')):
-        break
-    else:
-        print("Error: Invalid input. The path must end with either '.mid' or '.midi'.")
 
 
 def generate_midi(model):
