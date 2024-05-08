@@ -42,7 +42,7 @@ class DecoderModel(nn.Module):
             targets = targets.view(b * t)
             loss = F.cross_entropy(logits, targets)
         return logits, loss
-
+    # test
     def generate(self, device, idx, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_crop = idx[:, -self.block_size:]
